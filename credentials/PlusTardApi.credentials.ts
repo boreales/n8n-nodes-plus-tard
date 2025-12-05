@@ -22,7 +22,7 @@ export class PlusTardApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			qs: {
-				'api_key': '={{$credentials.apiKey}}'
+				'X-API-Key': '={{$credentials.apiKey}}'
 			}
 		},
 	} as IAuthenticateGeneric;
