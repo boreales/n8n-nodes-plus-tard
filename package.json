@@ -31,10 +31,10 @@
 		"n8nNodesApiVersion": 1,
 		"strict": true,
 		"credentials": [
-			"dist/credentials/PlusTardApi.credentials.js",
+			"dist/credentials/PlusTardApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/PlusTard/PlusTard.node.js",
+			"dist/nodes/PlusTard/PlusTard.node.js"
 		]
 	},
 	"devDependencies": {
