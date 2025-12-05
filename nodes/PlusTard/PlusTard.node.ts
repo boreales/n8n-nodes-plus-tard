@@ -21,7 +21,7 @@ export class PlusTard implements INodeType {
             },
         ],
         requestDefaults: {
-            baseURL: 'https://plus-tard.com/fr/api',
+            baseURL: 'https://plus-tard.com/api',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
