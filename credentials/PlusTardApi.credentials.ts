@@ -4,7 +4,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export class NasaPicsApi implements ICredentialType {
+export class PlusTardApi implements ICredentialType {
 	name = 'PlusTardAPI';
 	displayName = 'Plus Tard API';
 	// Uses the link to this tutorial as an example
