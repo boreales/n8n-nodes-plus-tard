@@ -13,7 +13,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/boreales/n8n-node-plus-tard"
+		"url": "git+https://github.com/boreales/n8n-node-plus-tard.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",
