@@ -65,9 +65,10 @@ export async function loadPlatformAccounts(
 		this.logger.debug(`[PlusTard] Response type: ${typeof response}, Is array: ${Array.isArray(response)}`);
 
 		// Extract user providers from response
+		const responseObj = response as { member?: unknown[]; 'hydra:member'?: unknown[] };
 		const userProviders = Array.isArray(response)
 			? response
-			: (response as any).member || response['hydra:member'] || [];
+			: responseObj.member || responseObj['hydra:member'] || [];
 
 		this.logger.debug(`[PlusTard] Found ${userProviders.length} user providers`);
 
