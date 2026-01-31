@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-plus-tard",
-	"version": "1.0.1",
+	"version": "1.0.0",
 	"description": "n8n community node for Plus Tard - Schedule social media posts across Twitter/X, Facebook, Instagram, LinkedIn, TikTok, Bluesky, and Threads",
 	"license": "MIT",
 	"homepage": "",
