@@ -1,8 +1,9 @@
-import type {
-	INodeType,
-	INodeTypeDescription,
-	ILoadOptionsFunctions,
-	INodePropertyOptions,
+import {
+	NodeConnectionTypes,
+	type INodeType,
+	type INodeTypeDescription,
+	type ILoadOptionsFunctions,
+	type INodePropertyOptions,
 } from 'n8n-workflow';
 import { buildNodeProperties } from './utils/nodeBuilder';
 import { loadPlatformAccounts, SUPPORTED_PLATFORMS } from './utils/platformHelpers';
@@ -32,8 +33,8 @@ export class PlusTard implements INodeType {
 		defaults: {
 			name: 'Plus Tard',
 		},
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 
 		credentials: [
 			{

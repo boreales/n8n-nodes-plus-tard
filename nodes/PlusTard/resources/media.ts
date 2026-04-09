@@ -1,4 +1,5 @@
 import type { PlusTardResourceModule } from '../types';
+import { mediaUploadPreSend } from '../utils/routingHooks';
 
 export const mediaResource: PlusTardResourceModule = {
 	operations: [
@@ -10,6 +11,9 @@ export const mediaResource: PlusTardResourceModule = {
 				request: {
 					method: 'POST',
 					url: '/media',
+				},
+				send: {
+					preSend: [mediaUploadPreSend],
 				},
 			},
 		},

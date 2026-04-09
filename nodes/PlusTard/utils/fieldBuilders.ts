@@ -138,14 +138,12 @@ export function buildCommonPostFields(): INodeProperties[] {
  */
 export function buildPlatformSpecificFields(): INodeProperties[] {
 	return [
+		// Twitter Parameters
 		{
-			displayName: 'Twitter Parameters',
-			name: 'twitterParams',
-			type: 'fixedCollection',
-			default: { items: [] },
-			typeOptions: {
-				multipleValues: true,
-			},
+			displayName: 'Enable Thread Mode',
+			name: 'twitterIsThread',
+			type: 'boolean',
+			default: false,
 			displayOptions: {
 				show: {
 					resource: ['posts'],
@@ -153,31 +151,47 @@ export function buildPlatformSpecificFields(): INodeProperties[] {
 					selectedPlatforms: ['twitter'],
 				},
 			},
-			description: 'Additional parameters specific to Twitter/X posts',
-			options: [
-				{
-					name: 'items',
-					displayName: 'Parameters',
-					values: [
-						{
-							displayName: 'Parameter',
-							name: 'param',
-							type: 'string',
-							default: '',
-							description: 'Twitter-specific parameter',
-						},
-					],
-				},
-			],
+			description: 'When enabled, the text will be automatically split into multiple tweets',
 		},
 		{
-			displayName: 'TikTok Parameters',
-			name: 'tiktokParams',
-			type: 'fixedCollection',
-			default: { items: [] },
-			typeOptions: {
-				multipleValues: true,
+			displayName: 'Max Characters Per Tweet',
+			name: 'twitterMaxCharsPerTweet',
+			type: 'number',
+			default: 280,
+			displayOptions: {
+				show: {
+					resource: ['posts'],
+					operation: ['create'],
+					selectedPlatforms: ['twitter'],
+					twitterIsThread: [true],
+				},
 			},
+			description: 'Maximum number of characters per tweet in a thread',
+		},
+		// TikTok Parameters
+		{
+			displayName: 'Privacy Level',
+			name: 'tiktokPrivacyLevel',
+			type: 'options',
+			options: [
+				{
+					name: 'Public To Everyone',
+					value: 'PUBLIC_TO_EVERYONE',
+				},
+				{
+					name: 'Mutual Follow Friends',
+					value: 'MUTUAL_FOLLOW_FRIENDS',
+				},
+				{
+					name: 'Follower Of Creator',
+					value: 'FOLLOWER_OF_CREATOR',
+				},
+				{
+					name: 'Self Only',
+					value: 'SELF_ONLY',
+				},
+			],
+			default: 'PUBLIC_TO_EVERYONE',
 			displayOptions: {
 				show: {
 					resource: ['posts'],
@@ -185,22 +199,77 @@ export function buildPlatformSpecificFields(): INodeProperties[] {
 					selectedPlatforms: ['tiktok'],
 				},
 			},
-			description: 'Additional parameters specific to TikTok posts',
-			options: [
-				{
-					name: 'items',
-					displayName: 'Parameters',
-					values: [
-						{
-							displayName: 'Parameter',
-							name: 'param',
-							type: 'string',
-							default: '',
-							description: 'TikTok-specific parameter',
-						},
-					],
+			description: 'Privacy level for the TikTok post',
+		},
+		{
+			displayName: 'Disable Comments',
+			name: 'tiktokDisableComment',
+			type: 'boolean',
+			default: false,
+			displayOptions: {
+				show: {
+					resource: ['posts'],
+					operation: ['create'],
+					selectedPlatforms: ['tiktok'],
 				},
-			],
+			},
+			description: 'Whether to disable comments on this post',
+		},
+		{
+			displayName: 'Disable Duet',
+			name: 'tiktokDisableDuet',
+			type: 'boolean',
+			default: false,
+			displayOptions: {
+				show: {
+					resource: ['posts'],
+					operation: ['create'],
+					selectedPlatforms: ['tiktok'],
+				},
+			},
+			description: 'Whether to disable duets for this post',
+		},
+		{
+			displayName: 'Disable Stitch',
+			name: 'tiktokDisableStitch',
+			type: 'boolean',
+			default: false,
+			displayOptions: {
+				show: {
+					resource: ['posts'],
+					operation: ['create'],
+					selectedPlatforms: ['tiktok'],
+				},
+			},
+			description: 'Whether to disable stitch for this post',
+		},
+		{
+			displayName: 'Brand Organic Content',
+			name: 'tiktokBrandOrganicToggle',
+			type: 'boolean',
+			default: false,
+			displayOptions: {
+				show: {
+					resource: ['posts'],
+					operation: ['create'],
+					selectedPlatforms: ['tiktok'],
+				},
+			},
+			description: 'Whether this is organic promotional content',
+		},
+		{
+			displayName: 'Brand Partnership Content',
+			name: 'tiktokBrandContentToggle',
+			type: 'boolean',
+			default: false,
+			displayOptions: {
+				show: {
+					resource: ['posts'],
+					operation: ['create'],
+					selectedPlatforms: ['tiktok'],
+				},
+			},
+			description: 'Whether this is a brand partnership post',
 		},
 	];
 }

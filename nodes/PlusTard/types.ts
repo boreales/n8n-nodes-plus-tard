@@ -24,14 +24,14 @@ export type PlusTardResource = 'posts' | 'media';
 
 export const PLUSTARD_RESOURCES: PlusTardResourceConfig[] = [
 	{
-		name: 'Posts',
-		value: 'posts',
-		description:
-			'Create, schedule, and manage social media posts across multiple platforms (Twitter/X, Facebook, Instagram, LinkedIn, TikTok, Bluesky, Threads)',
-	},
-	{
 		name: 'Media',
 		value: 'media',
 		description: 'Upload images and videos for use in your social media posts',
+	},
+	{
+		name: 'Post',
+		value: 'posts',
+		description:
+			'Create, schedule, and manage social media posts across multiple platforms (Twitter/X, Facebook, Instagram, LinkedIn, TikTok, Bluesky, Threads)',
 	},
 ];

@@ -1,4 +1,4 @@
-import type { IExecuteFunctions } from 'n8n-workflow';
+import type { IExecuteSingleFunctions, IHttpRequestOptions } from 'n8n-workflow';
 
 /**
  * Utility functions for routing hooks that process and transform data
@@ -7,10 +7,9 @@ import type { IExecuteFunctions } from 'n8n-workflow';
 /**
  * Builds the pages array from selected platforms and pages
  */
-function buildPagesArray(executeFunctions: IExecuteFunctions, itemIndex: number): string[] {
+function buildPagesArray(executeFunctions: IExecuteSingleFunctions): string[] {
 	const selectedPlatforms = executeFunctions.getNodeParameter(
 		'selectedPlatforms',
-		itemIndex,
 		[],
 	) as string[];
 
@@ -18,8 +17,7 @@ function buildPagesArray(executeFunctions: IExecuteFunctions, itemIndex: number)
 
 	selectedPlatforms.forEach((platform: string) => {
 		const pagesParam = `${platform}Pages`;
-		const pages = executeFunctions.getNodeParameter(pagesParam, itemIndex, []) as string[];
-		executeFunctions.logger.debug(`[PlusTard] Platform: ${platform}, Param: ${pagesParam}, Pages: ${JSON.stringify(pages)}`);
+		const pages = executeFunctions.getNodeParameter(pagesParam, []) as string[];
 		if (pages && Array.isArray(pages)) {
 			allPages.push(...pages);
 		}
@@ -31,10 +29,9 @@ function buildPagesArray(executeFunctions: IExecuteFunctions, itemIndex: number)
 /**
  * Processes media items from fixedCollection to array of URLs
  */
-function processMediaItems(executeFunctions: IExecuteFunctions, itemIndex: number): string[] {
+function processMediaItems(executeFunctions: IExecuteSingleFunctions): string[] {
 	const imagePostsData = executeFunctions.getNodeParameter(
 		'imagePosts',
-		itemIndex,
 		{ items: [] },
 	) as { items: Array<{ url: string }> };
 
@@ -46,69 +43,144 @@ function processMediaItems(executeFunctions: IExecuteFunctions, itemIndex: numbe
 }
 
 /**
- * Processes platform-specific parameters
+ * Builds Twitter-specific parameters object
  */
-function processPlatformParams(
-	executeFunctions: IExecuteFunctions,
-	itemIndex: number,
-	paramName: string,
-): string[] {
-	const paramsData = executeFunctions.getNodeParameter(paramName, itemIndex, {
-		items: [],
-	}) as { items: Array<{ param: string }> };
+function buildTwitterParams(
+	executeFunctions: IExecuteSingleFunctions,
+): { is_thread: boolean; max_chars_per_tweet: number } | undefined {
+	const selectedPlatforms = executeFunctions.getNodeParameter(
+		'selectedPlatforms',
+		[],
+	) as string[];
 
-	if (!paramsData || !paramsData.items || !Array.isArray(paramsData.items)) {
-		return [];
+	if (!selectedPlatforms.includes('twitter')) {
+		return undefined;
 	}
 
-	return paramsData.items.map((item) => item.param).filter((param) => param);
+	const isThread = executeFunctions.getNodeParameter('twitterIsThread', false) as boolean;
+	const maxCharsPerTweet = executeFunctions.getNodeParameter('twitterMaxCharsPerTweet', 280) as number;
+
+	return {
+		is_thread: isThread,
+		max_chars_per_tweet: maxCharsPerTweet,
+	};
+}
+
+/**
+ * Builds TikTok-specific parameters object
+ */
+function buildTiktokParams(
+	executeFunctions: IExecuteSingleFunctions,
+): {
+	privacy_level: string;
+	disable_comment: boolean;
+	disable_duet: boolean;
+	disable_stitch: boolean;
+	brand_organic_toggle: boolean;
+	brand_content_toggle: boolean;
+} | undefined {
+	const selectedPlatforms = executeFunctions.getNodeParameter(
+		'selectedPlatforms',
+		[],
+	) as string[];
+
+	if (!selectedPlatforms.includes('tiktok')) {
+		return undefined;
+	}
+
+	return {
+		privacy_level: executeFunctions.getNodeParameter('tiktokPrivacyLevel', 'PUBLIC_TO_EVERYONE') as string,
+		disable_comment: executeFunctions.getNodeParameter('tiktokDisableComment', false) as boolean,
+		disable_duet: executeFunctions.getNodeParameter('tiktokDisableDuet', false) as boolean,
+		disable_stitch: executeFunctions.getNodeParameter('tiktokDisableStitch', false) as boolean,
+		brand_organic_toggle: executeFunctions.getNodeParameter('tiktokBrandOrganicToggle', false) as boolean,
+		brand_content_toggle: executeFunctions.getNodeParameter('tiktokBrandContentToggle', false) as boolean,
+	};
 }
 
 /**
  * Pre-send hook for posts create operation
  */
 export async function postsCreatePreSend(
-	this: IExecuteFunctions,
-	requestOptions: { body?: Record<string, unknown> },
-): Promise<{ body?: Record<string, unknown> }> {
-	const itemIndex = 0;
-
-	this.logger.debug('[PlusTard] Starting postsCreatePreSend');
-
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
 	// Get all selected pages from all platforms
-	const pageIds = buildPagesArray(this, itemIndex);
-	this.logger.debug(`[PlusTard] pageIds: ${JSON.stringify(pageIds)}`);
+	const pageIds = buildPagesArray(this);
 
-	// Get the first page ID (or use provider-based logic if needed)
-	const pageId = pageIds[0] || this.getNodeParameter('pageId', itemIndex, '');
-	this.logger.debug(`[PlusTard] pageId: ${pageId}`);
+	// Get the first page ID
+	const pageId = pageIds[0] || this.getNodeParameter('pageId', '');
 
 	// Get provider (first selected platform)
-	const selectedPlatforms = this.getNodeParameter('selectedPlatforms', itemIndex, []) as string[];
-	const provider = selectedPlatforms[0] || this.getNodeParameter('provider', itemIndex, '');
-	this.logger.debug(`[PlusTard] provider: ${provider}`);
+	const selectedPlatforms = this.getNodeParameter('selectedPlatforms', []) as string[];
+	const provider = selectedPlatforms[0] || this.getNodeParameter('provider', '');
 
 	// Process media items
-	const imagePosts = processMediaItems(this, itemIndex);
-	this.logger.debug(`[PlusTard] imagePosts: ${JSON.stringify(imagePosts)}`);
+	const imagePosts = processMediaItems(this);
 
-	// Process platform-specific parameters
-	const twitterParams = processPlatformParams(this, itemIndex, 'twitterParams');
-	this.logger.debug(`[PlusTard] twitterParams: ${JSON.stringify(twitterParams)}`);
+	// Build platform-specific parameters
+	const twitterParams = buildTwitterParams(this);
+	const tiktokParams = buildTiktokParams(this);
 
-	const tiktokParams = processPlatformParams(this, itemIndex, 'tiktokParams');
-	this.logger.debug(`[PlusTard] tiktokParams: ${JSON.stringify(tiktokParams)}`);
-
-	// Build the request body
-	requestOptions.body = {
-		text: this.getNodeParameter('text', itemIndex),
+	// Build the request body with required fields
+	const body: Record<string, unknown> = {
 		provider: provider,
-		plannedAt: this.getNodeParameter('plannedAt', itemIndex),
+		plannedAt: this.getNodeParameter('plannedAt'),
 		pageId: pageId,
-		imagePosts: imagePosts,
-		twitterParams: twitterParams,
-		tiktokParams: tiktokParams,
 	};
+
+	// Add optional text field if provided
+	const text = this.getNodeParameter('text', '') as string;
+	if (text) {
+		body.text = text;
+	}
+
+	// Add optional imagePosts if any media is provided
+	if (imagePosts.length > 0) {
+		body.imagePosts = imagePosts;
+	}
+
+	// Add platform-specific parameters only if the platform is selected
+	if (twitterParams) {
+		body.twitterParams = twitterParams;
+	}
+
+	if (tiktokParams) {
+		body.tiktokParams = tiktokParams;
+	}
+
+	requestOptions.body = body;
+
+	return requestOptions;
+}
+
+/**
+ * Pre-send hook for media upload operation.
+ * Reads binary data from the input item and constructs a multipart/form-data request.
+ */
+export async function mediaUploadPreSend(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	const binaryPropertyName = this.getNodeParameter('binaryProperty', 'data') as string;
+	const fileName = this.getNodeParameter('fileName', '') as string;
+
+	const binaryData = this.helpers.assertBinaryData(binaryPropertyName);
+	const buffer = await this.helpers.getBinaryDataBuffer(binaryPropertyName);
+
+	const resolvedFileName = fileName || binaryData.fileName || 'file';
+	const mimeType = binaryData.mimeType || 'application/octet-stream';
+
+	const formData = new FormData();
+	const blob = new Blob([new Uint8Array(buffer)], { type: mimeType });
+	formData.append('file', blob, resolvedFileName);
+
+	requestOptions.body = formData;
+	requestOptions.headers = {
+		...requestOptions.headers,
+	};
+	// Remove Content-Type so the runtime sets the correct multipart boundary
+	delete requestOptions.headers['Content-Type'];
 
 	return requestOptions;
 }
