@@ -151,7 +151,7 @@ export function buildPlatformSpecificFields(): INodeProperties[] {
 					selectedPlatforms: ['twitter'],
 				},
 			},
-			description: 'When enabled, the text will be automatically split into multiple tweets',
+			description: 'Whether to automatically split the text into multiple tweets',
 		},
 		{
 			displayName: 'Max Characters Per Tweet',
