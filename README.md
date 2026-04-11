@@ -11,6 +11,7 @@ This is an n8n community node for [Plus Tard](https://plus-tard.com) — a socia
 - TikTok
 - Bluesky
 - Threads
+- Google
 
 ## Installation
 
